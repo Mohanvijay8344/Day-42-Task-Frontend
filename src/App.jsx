@@ -4,7 +4,7 @@ import viteLogo from "/vite.svg";
 import "./App.css";
 import { SignUp } from "./SignUp";
 import { SignIn } from "./SignIn";
-import { Routes, Route, Link, useNavigate } from "react-router-dom";
+import { Routes, Route, Link, useNavigate, Navigate } from "react-router-dom";
 import { Home } from "./Home";
 import { Forgot } from "./Forgot";
 import { Reset } from "./Reset";
@@ -17,6 +17,12 @@ import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 
+function handleLogout() {
+  window.clearToken();
+  navigate('/');
+}
+
+
 function App() {
   const navigate = useNavigate();
   return (
@@ -26,18 +32,27 @@ function App() {
             {/* <Button onClick={()=>navigate("/")} color="inherit">SIGNIN</Button> */}
             <Button onClick={()=>navigate("/signup")} color="inherit">SIGNUP</Button>
             <Button onClick={()=>navigate("/forgot-password")} color="inherit">FORGOT</Button>
-            <Button sx={{ marginLeft: "auto" }} onClick={()=>navigate("/")} color="inherit">SIGNOUT</Button>
+            <Button sx={{ marginLeft: "auto" }} onClick={() => localStorage.clear()} color="inherit">SIGNOUT</Button>
           </Toolbar>
       </AppBar>
       <Routes>
         <Route path="/" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
-        <Route path="/home" element={<Home />} />
+        <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
         <Route path="/forgot-password" element={<Forgot />} />
         <Route path="/reset-password" element={<Reset />} />
       </Routes>
     </div>
   );
+}
+
+function ProtectedRoute({children}){
+  const token = localStorage.getItem("token");
+  return token ? (
+    <section>{children}</section>
+  ) : (
+    <Navigate replace to="/" />
+  )
 }
 
 export default App;
